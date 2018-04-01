@@ -38,7 +38,7 @@ void SimpleBmp24::Save(SimpleBmp24& bmp, std::string filePath)
 {
 	using namespace std;
 	ofstream fout;
-	fout.open(filePath);
+	fout.open(filePath, ifstream::binary);
 	if (!fout.is_open())
 	{
 		cout << "Fail save!";
@@ -86,16 +86,58 @@ void SimpleBmp24::Save(std::string filePath)
 }
 void SimpleBmp24::Transform(ColorTransform transform)
 {
-	for (int i = 0; i < height; i++)
-		for (int j = 0; j < width; j++)
+	for (int i = 0; i < width; i++)
+		for (int j = 0; j < height; j++)
 		{
-			int index = GetIndexOfPos(i, j);
-			transform(data[index], data[index + 1], data[index + 2], j, i, width, height);
+			int index = 0;
+			GetIndexOfPos(i, j, index);
+			transform(data[index], data[index + 1], data[index + 2], i, j, width, height);
 		}
 }
-int SimpleBmp24::GetIndexOfPos(int row, int line)
+bool SimpleBmp24::GetIndexOfPos(int x, int y,int& index)
 {
-	return 3 * (row*width + line);
+	index = 0;
+	if (x < 0 || x >= width || y < 0 || y >= height)
+		return false;
+	index = 3 * (y*width + x);
+	return true;
+}
+bool SimpleBmp24::GetPixel(int x, int y, int& r, int& g, int& b)
+{
+	int index = 0;
+	if (!GetIndexOfPos(x, y, index))
+	{
+		// 将边界颜色返回
+		if (x < 0)
+			x = 0;
+		else if (x >= height)
+			x = height - 1;
+		if (y < 0)
+			y = 0;
+		else if (y >= width)
+			y = width - 1;
+		GetIndexOfPos(x, y, index);
+		r = data[index];
+		g = data[index + 1];
+		b = data[index + 2];
+		return false;
+	}
+	r = data[index];
+	g = data[index + 1]; 
+	b = data[index + 2];
+	return true;
+}
+bool SimpleBmp24::SetPixel(int x, int y, int r, int g, int b)
+{
+	int index = 0;
+	if (!GetIndexOfPos(x, y, index))
+	{
+		return false;
+	}
+	data[index] = r;
+	data[index + 1] = g;
+	data[index + 2] = b;
+	return true;
 }
 SimpleBmp24::~SimpleBmp24()
 {

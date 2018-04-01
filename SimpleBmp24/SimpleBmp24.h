@@ -25,7 +25,17 @@ public:
 	// 变换!
 	void Transform(ColorTransform transform);
 	// 获得相应位置的下标, row, 行; line, 列
-	int GetIndexOfPos(int row, int line);
+	bool GetIndexOfPos(int row, int line, int& index);
+
+	bool GetPixel(int x, int y, int& r, int& g, int& b);
+	bool SetPixel(int x,int y,int r,int g,int b);
+
+	void GetSize(int& width,int& height)
+	{
+		width = this->width;
+		height = this->height;
+	}
+	
 
 	~SimpleBmp24();
 };

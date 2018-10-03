@@ -5,13 +5,13 @@
 #include "SimpleBmp24.h"
 #include "PerlinNoise.hpp"
 
-#pragma region º¯ÊıÖ¸Õë, ¸Ä±ä¶ÀÁ¢ÏñËØÑÕÉ«
-// ±ä»Ò
+#pragma region å‡½æ•°æŒ‡é’ˆ, æ”¹å˜ç‹¬ç«‹åƒç´ é¢œè‰²
+// å˜ç°
 void TransformToGray(unsigned char& r, unsigned char& g, unsigned char& b, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
 	r = g = b = (r + g + b)*0.33f;
 }
-// ãĞÖµ
+// é˜ˆå€¼
 void TransformByThreshold(unsigned char& r, unsigned char& g, unsigned char& b, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
 	unsigned int max = (r + g + b)*0.33f;
@@ -20,10 +20,10 @@ void TransformByThreshold(unsigned char& r, unsigned char& g, unsigned char& b, 
 	else
 		r = g = b = 0;
 }
-// °ØÁÖÔëÒô
+// æŸæ—å™ªéŸ³
 void RandomNoise(unsigned char& r, unsigned char& g, unsigned char& b, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
-	// ËùÓĞµÄÏñËØ²»ÊÇÒ»Æğ´¦ÀíµÄ, ÎªÁËÁ¬ĞøĞÔĞèÒªstatic
+	// æ‰€æœ‰çš„åƒç´ ä¸æ˜¯ä¸€èµ·å¤„ç†çš„, ä¸ºäº†è¿ç»­æ€§éœ€è¦static
 	static siv::PerlinNoise perlinNoise;
 	float dx[] = { 1, 1, 1};
 	float dy[] = { 1, 1, 1 };
@@ -33,21 +33,21 @@ void RandomNoise(unsigned char& r, unsigned char& g, unsigned char& b, unsigned 
 	for (int i = 0; i < 3; i++)
 		*rgb[i] = (unsigned char)(perlinNoise.noise0_1(x*sc[i]+dx[i], y*sc[i]+dy[i]) * 255);
 }
-// 3.2.1 Í¼Ïñ·´×ª
+// 3.2.1 å›¾åƒåè½¬
 void TransformInversion(unsigned char& r, unsigned char& g, unsigned char& b, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
 	r = 256 - 1 - r;
 	g = 256 - 1 - g;
 	b = 256 - 1 - b;
 }
-// 3.2.2 ¶ÔÊı±ä»»
+// 3.2.2 å¯¹æ•°å˜æ¢
 void TransformLog(unsigned char& r, unsigned char& g, unsigned char& b, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
 	r = 256 * (log(r + 1) / log(256));
 	g = 256 * (log(g + 1) / log(256));
 	b = 256 * (log(b + 1) / log(256));
 }
-// 3.2.3 ÃİÂÉ(Ù¤Âí)±ä»»
+// 3.2.3 å¹‚å¾‹(ä¼½é©¬)å˜æ¢
 void TransformGama(unsigned char& r, unsigned char& g, unsigned char& b, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
 	float gama = 0.5f;
@@ -57,8 +57,8 @@ void TransformGama(unsigned char& r, unsigned char& g, unsigned char& b, unsigne
 }
 #pragma endregion
 
-#pragma region ÆäËûµÄ
-// 3.2.4 µÚÈı¸ö, ±ÈÌØÆ½Ãæ·Ö²ã
+#pragma region å…¶ä»–çš„
+// 3.2.4 ç¬¬ä¸‰ä¸ª, æ¯”ç‰¹å¹³é¢åˆ†å±‚
 std::vector<SimpleBmp24*>* BitLayers(SimpleBmp24& bmp, int layerCount = 8)
 {
 	using namespace std;
@@ -89,7 +89,7 @@ std::vector<SimpleBmp24*>* BitLayers(SimpleBmp24& bmp, int layerCount = 8)
 	}
 	return layers;
 }
-// 3.3.1 Ö±·½Í¼¾ùºâ(¶ÔRGBÈı¸öÍ¨µÀ·Ö±ğÖ´ĞĞ)
+// 3.3.1 ç›´æ–¹å›¾å‡è¡¡(å¯¹RGBä¸‰ä¸ªé€šé“åˆ†åˆ«æ‰§è¡Œ)
 void HistogramEqualization(SimpleBmp24& bmp)
 {
 	int count[3][256];
@@ -125,7 +125,7 @@ void HistogramEqualization(SimpleBmp24& bmp)
 			bmp.GetPixel(i, j, r, g, b);
 			r = 255 * (float)count[0][r] / (float)bmpSize;
 			g = 255 * (float)count[1][g] / (float)bmpSize;
-			b = 255 * (float)count[1][b] / (float)bmpSize;
+			b = 255 * (float)count[2][b] / (float)bmpSize;
 			bmp.SetPixel(i, j, r,g,b);
 		}
 	}
@@ -133,7 +133,7 @@ void HistogramEqualization(SimpleBmp24& bmp)
 }
 #pragma endregion
 
-#pragma region Í¼Ïñ·Å´ó, ËõĞ¡
+#pragma region å›¾åƒæ”¾å¤§, ç¼©å°
 SimpleBmp24& ZoomNearest(SimpleBmp24& bmp, float scale = 0.5f)
 {
 	int width = 0;
@@ -156,7 +156,7 @@ SimpleBmp24& ZoomNearest(SimpleBmp24& bmp, float scale = 0.5f)
 	return *newBmp;
 }
 
-// Bi,TriÒª½â·½³Ì...
+// Bi,Triè¦è§£æ–¹ç¨‹...
 /*
 SimpleBmp24& ZoomBilinear(SimpleBmp24& bmp, float scale = 0.5f)
 {
@@ -191,28 +191,28 @@ int main()
 {
 	using namespace std;
 	//==============================================================
-	// ´´½¨Ò»¸öĞÂµÄBmp
+	// åˆ›å»ºä¸€ä¸ªæ–°çš„Bmp
 	//SimpleBmp24 *bmp = new SimpleBmp24(512,512);
-	// ¶ÁÈ¡Bmp
+	// è¯»å–Bmp
 	SimpleBmp24 *bmp = SimpleBmp24::Read("Night.bmp");
 	//==============================================================
-	// 1. °ØÁÖÔëÒô
+	// 1. æŸæ—å™ªéŸ³
 	//bmp->Transform(RandomNoise);
-	// 2. ±ä»Ò
+	// 2. å˜ç°
 	// bmp->Transform(TransformToGray);
-	// 3. ãĞÖµ
+	// 3. é˜ˆå€¼
 	//bmp->Transform(TransformByThreshold);
-	// 4. ×îÁÚ½üÄÚ²å
+	// 4. æœ€é‚»è¿‘å†…æ’
 	// auto newBmp = ZoomNearest(*bmp, 0.1f);
-	// 5. ·´×ª
+	// 5. åè½¬
 	// bmp->Transform(TransformInversion);
-	// 6. ¶ÔÊı±ä»»
+	// 6. å¯¹æ•°å˜æ¢
 	// bmp->Transform(TransformLog);
-	// 7. ÃİÂÉ(Ù¤Âí)±ä»»
+	// 7. å¹‚å¾‹(ä¼½é©¬)å˜æ¢
 	// bmp->Transform(TransformGama);
-	// 8. ±ÈÌØÆ½Ãæ·Ö²ã
+	// 8. æ¯”ç‰¹å¹³é¢åˆ†å±‚
 	// auto layers = BitLayers(*bmp,8);
-	// 9. Ö±·½Í¼¾ùºâ
+	// 9. ç›´æ–¹å›¾å‡è¡¡
 	HistogramEqualization(*bmp);
 	//==============================================================
 	bmp->Save("Night_HistogramEqualization.bmp");
